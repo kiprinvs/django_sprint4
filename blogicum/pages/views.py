@@ -1,20 +1,22 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
-def about(request):
-    """Отображение страница о проекте"""
-    template = 'pages/about.html'
-    return render(request, template)
+class About(TemplateView):
+    template_name = 'pages/about.html'
 
 
-def rules(request):
-    """Отображение правил"""
-    template = 'pages/rules.html'
-    return render(request, template)
+class Rules(TemplateView):
+    template_name = 'pages/rules.html'
 
 
 def csrf_failure(request, reason=''):
-    return render(request, 'pages/403csrf.html', status=403)
+    return render(
+        request,
+        'pages/403csrf.html',
+        status=403,
+        context={'reason': reason}
+    )
 
 
 def page_not_found(request, exception):
