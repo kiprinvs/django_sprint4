@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Post, Category, Location
+from .models import Post, Category, Location, Comment
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -46,6 +46,10 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('title',)
 
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('text', 'post', 'author')
+
+
 class LocationAdmin(admin.ModelAdmin):
     """Редактирование местоположения"""
 
@@ -58,6 +62,7 @@ class LocationAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Post, PostAdmin)
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(Post, PostAdmin)
