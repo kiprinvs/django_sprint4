@@ -1,10 +1,9 @@
-from datetime import datetime
 from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
@@ -32,7 +31,7 @@ def get_posts_queryset(filters=False, annotations=False):
         base_query = base_query.filter(
             is_published=True,
             category__is_published=True,
-            pub_date__lte=datetime.now(),
+            pub_date__lte=timezone.now(),
         )
     if annotations:
         base_query = base_query.annotate(
@@ -94,6 +93,13 @@ class CommentDeleteView(
 class CommentUpdateView(
     LoginRequiredMixin, OnlyAuthorMixin, CommentMixin, UpdateView
 ):
+
+    def dispatch(self, request, *args, **kwargs):
+        instance = get_object_or_404(
+            Comment, pk=kwargs.get('comment_id', 'post_id'))
+        if instance.author != request.user:
+            return redirect('blog:post_detail', self.kwargs.get('post_id'))
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -173,12 +179,11 @@ class ProfileListView(ListView):
         return user
 
     def get_queryset(self):
-        self.author = self.get_user()
-        if self.request.user == self.get_user():
-            queryset = get_posts_queryset(annotations=True)
-        else:
-            queryset = get_posts_queryset(filters=True, annotations=True)
-        return queryset.filter(author=self.author)
+        queryset = get_posts_queryset(
+            filters=self.request.user != self.get_user(),
+            annotations=True
+        )
+        return queryset.filter(author=self.get_user())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
