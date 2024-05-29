@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
+
 from .models import Comment
 from .forms import CommentForm
 
@@ -25,7 +26,7 @@ class OnlyAuthorMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         return redirect(
             'blog:post_detail',
-            post_id=self.kwargs[self.pk_url_kwarg]
+            post_id=self.kwargs.get('post_id')
         )
 
 

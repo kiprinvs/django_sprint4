@@ -93,17 +93,7 @@ class CommentDeleteView(
 class CommentUpdateView(
     LoginRequiredMixin, OnlyAuthorMixin, CommentMixin, UpdateView
 ):
-
-    def dispatch(self, request, *args, **kwargs):
-        instance = get_object_or_404(
-            Comment, pk=kwargs.get('comment_id', 'post_id'))
-        if instance.author != request.user:
-            return redirect('blog:post_detail', self.kwargs.get('post_id'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+    pass
 
 
 class PostCreateView(LoginRequiredMixin, ProfileSuccesUrlMixin, CreateView):
